@@ -2,6 +2,8 @@
 
 ![logo](logo.png)
 
+![screenshot](https://i.imgur.com/eAykbzK.png)
+
 A lightweight, fast **Path of Exile 1** wealth tracker written in Rust.
 
 [Wealthy Exile](https://wealthyexile.com/) and [Exilence CE](https://github.com/exilence-ce/exilence-ce) inspired me to build this — I wanted something that did the same job but was written in Rust.
