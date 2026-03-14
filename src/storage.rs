@@ -5,7 +5,7 @@ use std::fs;
 use std::path::PathBuf;
 
 fn get_data_dir() -> PathBuf {
-    if let Some(proj_dirs) = ProjectDirs::from("com", "StatOfExile", "StatOfExile") {
+    if let Some(proj_dirs) = ProjectDirs::from("com", "GreedOfExile", "GreedOfExile") {
         let dir = proj_dirs.data_local_dir();
         if !dir.exists() {
             fs::create_dir_all(dir).unwrap_or_default();
