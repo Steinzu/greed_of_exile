@@ -109,7 +109,7 @@ Click any tab in the left panel to browse its contents. Items are displayed in a
 Requires the [Rust toolchain](https://rustup.rs/) and MSVC (Visual Studio Build Tools).
 
 ```sh
-git clone https://github.com/steinzu/greed_of_exile
+git clone https://github.com/Steinzu/greed_of_exile
 cd greed_of_exile
 cargo build --release
 ```
