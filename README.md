@@ -2,7 +2,7 @@
 
 ![logo](logo.png)
 
-![screenshot](https://i.imgur.com/eAykbzK.png)
+![screenshot](https://i.imgur.com/oWTp8OS.png)
 
 A lightweight, fast **Path of Exile 1** wealth tracker written in Rust.
 
