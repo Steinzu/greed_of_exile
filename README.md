@@ -118,6 +118,12 @@ The binary will be at `target/release/greedofexile.exe`.
 
 ---
 
+## Disclaimer : 
+
+[Zed](https://zed.dev/)'s AI prediction tool has been used to help with development, comments, code reformatting and the readme.
+
+---
+
 ## License
 
 MIT
