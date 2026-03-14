@@ -8,6 +8,12 @@ A lightweight, fast **Path of Exile 1** wealth tracker written in Rust.
 
 ---
 
+## Known issues : 
+
+Divination card prices are wildly innacurate sometimes, I would recommend not selecting that tab.
+
+---
+
 ## Download
 
 Grab the latest `greed-of-exile.exe` from the [Releases](../../releases) page. No installer needed — just run it.
