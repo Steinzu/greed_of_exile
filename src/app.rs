@@ -330,6 +330,13 @@ impl GreedOfExileApp {
                     {
                         Ok(stash) => {
                             for item in &stash.items {
+                                if config
+                                    .disabled_resources
+                                    .get(&tab_idx)
+                                    .map_or(false, |s| s.contains(item.lookup_name()))
+                                {
+                                    continue;
+                                }
                                 let count = item.stack_size.unwrap_or(1) as f64;
                                 let price = p
                                     .prices
@@ -571,6 +578,32 @@ impl GreedOfExileApp {
                 self.take_snapshot(ctx.clone());
             }
 
+            let del_resp = ui
+                .add(
+                    egui::Button::new("🗑 Delete Snapshot")
+                        .fill(egui::Color32::from_rgb(100, 30, 30)),
+                )
+                .on_hover_text(
+                    "Remove the last snapshot.\nShift-click to wipe the entire history.",
+                );
+            if del_resp.clicked() {
+                if ui.input(|i| i.modifiers.shift) {
+                    self.history.clear();
+                    self.last_snapshot_delta = None;
+                    let _ = storage::save_history(&self.history);
+                    self.status_msg = "History wiped.".to_string();
+                } else if !self.history.is_empty() {
+                    self.history.pop();
+                    self.last_snapshot_delta = self
+                        .history
+                        .windows(2)
+                        .last()
+                        .map(|w| w[1].total_divine_value - w[0].total_divine_value);
+                    let _ = storage::save_history(&self.history);
+                    self.status_msg = "Last snapshot deleted.".to_string();
+                }
+            }
+
             ui.separator();
             ui.label(format!("Status: {}", self.status_msg));
         });
@@ -699,7 +732,7 @@ impl GreedOfExileApp {
         }
     }
 
-    fn render_tab_content(&self, ui: &mut egui::Ui) {
+    fn render_tab_content(&mut self, ui: &mut egui::Ui) {
         ui.heading("Tab Content");
 
         let Some(tab_idx) = self.selected_view_tab else {
@@ -754,10 +787,41 @@ impl GreedOfExileApp {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
+        // Pre-compute per-row display data to avoid borrowing `self` inside nested closures.
+        let row_tracked: Vec<bool> = rows
+            .iter()
+            .map(|row| {
+                !self
+                    .config
+                    .disabled_resources
+                    .get(&tab_idx)
+                    .map_or(false, |s| s.contains(&row.ninja_base_type))
+            })
+            .collect();
+
+        let image_uris: Vec<Option<String>> = rows
+            .iter()
+            .map(|row| {
+                self.image_cache
+                    .get(&row.ninja_name)
+                    .or_else(|| self.image_cache.get(&row.ninja_base_type))
+                    .or_else(|| self.image_cache.get(&row.icon_url))
+                    .map(|p| format!("file://{}", p.display()).replace('\\', "/"))
+            })
+            .collect();
+
+        let is_fetching: Vec<bool> = rows
+            .iter()
+            .map(|row| self.fetching_images.contains(&row.icon_url))
+            .collect();
+
+        let mut pending_toggles: Vec<(String, bool)> = Vec::new();
+
         TableBuilder::new(ui)
             .striped(true)
             .resizable(true)
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+            .column(Column::exact(24.0)) // Tracked
             .column(Column::exact(36.0)) // Icon
             .column(Column::auto()) // Amount
             .column(Column::initial(250.0).clip(true)) // Name
@@ -765,6 +829,10 @@ impl GreedOfExileApp {
             .column(Column::remainder()) // Total price
             .min_scrolled_height(0.0)
             .header(20.0, |mut header| {
+                header.col(|ui| {
+                    ui.strong("✔")
+                        .on_hover_text("Toggle wealth tracking for this item");
+                });
                 header.col(|ui| {
                     ui.strong("Icon");
                 });
@@ -782,22 +850,25 @@ impl GreedOfExileApp {
                 });
             })
             .body(|mut body| {
-                for row in rows {
+                for (i, row) in rows.iter().enumerate() {
+                    let mut tracked = row_tracked[i];
                     body.row(36.0, |mut r| {
                         r.col(|ui| {
-                            // Look up the cached icon, trying three keys in order.
-                            let path = self
-                                .image_cache
-                                .get(&row.ninja_name)
-                                .or_else(|| self.image_cache.get(&row.ninja_base_type))
-                                .or_else(|| self.image_cache.get(&row.icon_url));
-
-                            if let Some(p) = path {
-                                let uri = format!("file://{}", p.display()).replace('\\', "/");
+                            if ui
+                                .checkbox(&mut tracked, "")
+                                .on_hover_text("Include in wealth snapshot")
+                                .changed()
+                            {
+                                pending_toggles.push((row.ninja_base_type.clone(), tracked));
+                            }
+                        });
+                        r.col(|ui| {
+                            if let Some(uri) = &image_uris[i] {
                                 ui.add(
-                                    egui::Image::new(uri).fit_to_exact_size(egui::vec2(32.0, 32.0)),
+                                    egui::Image::new(uri.as_str())
+                                        .fit_to_exact_size(egui::vec2(32.0, 32.0)),
                                 );
-                            } else if self.fetching_images.contains(&row.icon_url) {
+                            } else if is_fetching[i] {
                                 ui.spinner();
                             } else if !row.icon_url.is_empty() {
                                 ui.label("-");
@@ -826,6 +897,16 @@ impl GreedOfExileApp {
                     });
                 }
             });
+
+        // Apply tracked/untracked toggles collected during table rendering.
+        for (key, now_tracked) in pending_toggles {
+            let set = self.config.disabled_resources.entry(tab_idx).or_default();
+            if now_tracked {
+                set.remove(&key);
+            } else {
+                set.insert(key);
+            }
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct AppConfig {
@@ -6,6 +7,8 @@ pub struct AppConfig {
     pub poesessid: String,
     pub league: String,
     pub tracked_tabs: Vec<u32>,
+    #[serde(default)]
+    pub disabled_resources: HashMap<u32, HashSet<String>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

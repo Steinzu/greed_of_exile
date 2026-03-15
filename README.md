@@ -2,7 +2,7 @@
 
 ![logo](logo.png)
 
-![screenshot](https://i.imgur.com/oWTp8OS.png)
+![screenshot](https://i.imgur.com/2qndXur.png)
 
 A lightweight, fast **Path of Exile 1** wealth tracker written in Rust.
 
@@ -59,6 +59,7 @@ Click **Save Config** to persist your settings. You only need to do this once, o
 Click **Take Snapshot** to fetch all your tracked stash tabs, look up each item's current price from [poe.ninja](https://poe.ninja), and record your total wealth as a data point on the chart.
 
 - Only tabs that are **checked** in the tab list on the left are included in the snapshot total.
+- Within a tracked tab, individual items can be excluded via the **✔ checkbox** in the stash viewer (see [Stash Viewer](#stash-viewer)). Disabled items are skipped when computing the total.
 - After each snapshot, the change since the last one is displayed next to your current wealth (e.g. **+12.4div** in green, or **-3.1div** in red).
 
 ### Wealth Chart
@@ -91,9 +92,22 @@ Click **Fetch Prices** to manually refresh item prices from poe.ninja. Prices ar
 
 Click **Cache Icons** once the first time you use the app. This downloads all item icons from poe.ninja to a local folder so they display correctly in the stash viewer. It only needs to be done once (or again if new items are added in a new league).
 
+### Delete Snapshot
+
+The **🗑 Delete Snapshot** button (next to *Take Snapshot*) lets you roll back bad data points:
+
+| Action | Behaviour |
+|---|---|
+| Click | Removes the most recent snapshot from the history |
+| Shift-click | **Wipes the entire history** — use with caution |
+
+This is useful when poe.ninja prices were broken during a snapshot and the chart shows a misleading spike.
+
 ### Stash Viewer
 
 Click any tab in the left panel to browse its contents. Items are displayed in a table sorted by total value (descending), with their icon, stack size, unit price, and total chaos value.
+
+The first column contains a **✔ checkbox** for each item. Unchecking it excludes that specific item from future wealth snapshots while keeping the rest of the tab tracked. Click **Save Config** to persist these per-item exclusions.
 
 ---
 
