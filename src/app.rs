@@ -573,7 +573,7 @@ impl GreedOfExileApp {
                         None
                     }
                 })
-                .unwrap_or_else(|| "Take snapshot".to_string());
+                .unwrap_or_else(|| "Take Snapshot".to_string());
             if ui.button(&btn_label).clicked() {
                 self.take_snapshot(ctx.clone());
             }
