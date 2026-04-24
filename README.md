@@ -12,7 +12,7 @@ A lightweight, fast **Path of Exile 1** wealth tracker written in Rust.
 
 ## Download
 
-Grab the latest `greed-of-exile.exe` from the [Releases](../../releases) page. No installer needed — just run it.
+Grab the latest executable for Windows or AppImage for Linux from the [Releases](../../releases) page. No installer needed — just run it.
 
 ---
 
